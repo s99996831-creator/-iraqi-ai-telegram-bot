@@ -1,3 +1,5 @@
+import threading
+
 from telegram import Update
 from telegram.constants import ChatAction
 from telegram.ext import (
@@ -11,6 +13,7 @@ from telegram.ext import (
 from ai import AI
 from config import DB_PATH, OPENAI_API_KEY, OPENAI_MODEL, TELEGRAM_BOT_TOKEN
 from db import Database
+from webserver import start_health_server
 
 db = Database(DB_PATH)
 ai = AI(OPENAI_API_KEY, OPENAI_MODEL)
@@ -143,6 +146,8 @@ async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 def main():
+    threading.Thread(target=start_health_server, daemon=True).start()
+
     application = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
 
     application.add_handler(CommandHandler("start", start))
